@@ -9,11 +9,17 @@ const razorpay = new Razorpay({
 
 // Create an order
 export const createOrder = async (req, res) => {
-  const { userTable, cartItems, name, phone } = req.body;
+  const { userTable, cartItems, name, phone, totalAmount } = req.body;
+  const amountInPaise = Math.round(totalAmount * 100);
+  console.log(
+    "--------------------------------------------------------",
+    req.body,
+    totalAmount
+  );
 
   try {
     const razorpayOrder = await razorpay.orders.create({
-      amount: 50000, // Amount in paise (for 500.00 INR)
+      amount: amountInPaise,
       currency: "INR",
       receipt: "order_rcptid_11",
     });
