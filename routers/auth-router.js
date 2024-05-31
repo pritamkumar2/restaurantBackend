@@ -5,7 +5,11 @@ import {
   getProductsByTag,
   singleProduct,
 } from "../controllers/Allproducts/allProducts.js";
-import { createOrder, verifyPayment } from "../controllers/OrderController.js";
+import {
+  createOrder,
+  verifyPayment,
+  rzpGetKey,
+} from "../controllers/OrderController.js";
 
 const router = express.Router();
 
@@ -23,5 +27,6 @@ router.post("/orders/create", createOrder);
 
 // Verify Razorpay payment
 router.post("/payment/verify", verifyPayment);
+router.route("/getkey").get(rzpGetKey);
 
 export default router;

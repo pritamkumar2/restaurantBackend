@@ -33,28 +33,19 @@ export const createOrder = async (req, res) => {
 };
 
 // Verify and update order status
-// Verify and update order status
 export const verifyPayment = async (req, res) => {
-  const { razorpayPaymentId, orderId } = req.body;
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+    req.body;
 
-  try {
-    console.log("Verify Payment Request Body:", req.body); // Log the request body
+  console.log("Received data for verification:", req.body);
 
-    const order = await Order.findById(orderId);
-    console.log("Order found:", order); // Log the found order
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    order.razorpayPaymentId = razorpayPaymentId;
-    order.status = "success";
-    await order.save();
-
-    console.log("Updated Order:", order); // Log the updated order
-
-    res.status(200).json(order);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid payment verification data" });
   }
+};
+
+export const rzpGetKey = (req, res) => {
+  res.status(200).send({ success: true, key: process.env.RZP_APIKEY });
 };
