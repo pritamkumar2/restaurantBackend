@@ -7,8 +7,9 @@ const orderSchema = new Schema(
     userTable: { type: String },
     cartItems: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     name: { type: String },
+    razorpayOrder: { type: String },
     phone: { type: String },
-    razorpayPaymentId: { type: String },
+
     status: {
       type: String,
       enum: ["pending", "success", "incomplete"],
