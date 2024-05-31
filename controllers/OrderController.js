@@ -63,7 +63,7 @@ export const verifyPayment = async (req, res) => {
           .json({ success: false, message: "Order not found" });
       }
 
-      order.paymentStatus = "Completed";
+      order.status = "Completed";
       await order.save();
 
       res
