@@ -47,3 +47,14 @@ export const authUser = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+export const getProductsByTag = async (req, res) => {
+  try {
+    const { tag } = req.params;
+    const products = await Product.find({ tags: tag });
+    res.status(200).json({ data: products });
+  } catch (err) {
+    console.error("Error fetching products by tag", err);
+    res.status(500).send("Internal Server Error");
+  }
+};
