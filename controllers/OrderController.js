@@ -3,19 +3,14 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 
 const razorpay = new Razorpay({
-  key_id: "rzp_test_KJZZUOEkXTlMu8",
-  key_secret: "qyZP5VmoGfm2LVjuGr6OZ2Wf",
+  key_id: process.env.RZP_APIKEY,
+  key_secret: process.env.RZP_APISECRET,
 });
 
 // Create an order
 export const createOrder = async (req, res) => {
   const { userTable, cartItems, name, phone, totalAmount } = req.body;
   const amountInPaise = Math.round(totalAmount * 100);
-  console.log(
-    "--------------------------------------------------------",
-    req.body,
-    totalAmount
-  );
 
   try {
     const razorpayOrder = await razorpay.orders.create({
@@ -29,7 +24,7 @@ export const createOrder = async (req, res) => {
       cartItems,
       name,
       phone,
-      razorpayOrder: razorpayOrder?.id, // Store Razorpay order ID
+      razorpayOrder: razorpayOrder.id, // Store Razorpay order ID
     });
 
     const savedOrder = await newOrder.save();
@@ -42,14 +37,16 @@ export const createOrder = async (req, res) => {
 };
 
 // Verify and update order status
+// verifyPayment function remains the same
 export const verifyPayment = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     req.body;
-  console.log(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid payment verification data" });
+    return res.status(400).json({
+      success: false,
+      message: "Invalid payment verification data",
+    });
   }
 
   const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -61,32 +58,30 @@ export const verifyPayment = async (req, res) => {
 
   if (expectedSignature === razorpay_signature) {
     try {
-      // Find the order in MongoDB and update its payment status to "Completed"
       const order = await Order.findOne({ razorpayOrder: razorpay_order_id });
       if (!order) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Order not found" });
+        return res.status(404).json({
+          success: false,
+          message: "Order not found",
+        });
       }
 
       order.status = "Completed";
       await order.save();
 
-      res
-        .status(200)
-        .json({ success: true, message: "Payment verification successful" });
+      return res.status(200).json({ success: true });
     } catch (err) {
       console.error("Error updating order:", err);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Error updating order",
-        error: err.message,
       });
     }
   } else {
-    res
-      .status(400)
-      .json({ success: false, message: "Invalid payment signature" });
+    return res.status(400).json({
+      success: false,
+      message: "Invalid payment signature",
+    });
   }
 };
 
